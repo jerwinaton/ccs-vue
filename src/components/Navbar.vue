@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted } from "vue";
 import { RouterLink } from "vue-router";
+import ccsLogo from "../assets/images/image.png";
+
 // Mobile Navigation Toggle
 onMounted(() => {
   const hamburger = document.querySelector(".hamburger");
@@ -34,7 +36,7 @@ onMounted(() => {
   <header>
     <nav class="navbar">
       <div class="logo">
-        <img src="./assets/images/image.png" alt="School Logo" />
+        <img :src="ccsLogo" alt="School Logo" />
         <h1>Freshman Screening Portal</h1>
       </div>
       <div class="nav-links">

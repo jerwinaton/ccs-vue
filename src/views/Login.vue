@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <img src="../assets/images/image.png" alt="CCS Logo" class="logo" />
+      <img :src="ccsLogo" alt="CCS Logo" class="logo" />
       <div class="card-header">
         <h2>Welcome Back</h2>
         <p>Sign in to continue to your account</p>
@@ -32,8 +32,8 @@
               <span class="checkbox-custom"></span>
               Remember me
             </label>
-            <a href="forgot-password.html" class="forgot-link"
-              >Forgot Password?</a
+            <RouterLink to="/forgot-password" class="forgot-link"
+              >Forgot Password?</RouterLink
             >
           </div>
         </div>
@@ -43,7 +43,8 @@
             <i class="fas fa-sign-in-alt"></i> Sign In
           </button>
           <p class="register-link">
-            Don't have an account? <a href="register.html">Create Account</a>
+            Don't have an account?
+            <RouterLink to="/register">Create Account</RouterLink>
           </p>
         </div>
       </form>
@@ -58,5 +59,6 @@
 </template>
 <script setup>
 import "../assets/css/styles.css";
+import ccsLogo from "../assets/images/image.png";
 </script>
 <style></style>

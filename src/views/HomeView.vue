@@ -1,5 +1,6 @@
 <script setup>
 import Navbar from "@/components/Navbar.vue";
+import { RouterLink } from "vue-router";
 </script>
 
 <template>
@@ -10,8 +11,8 @@ import Navbar from "@/components/Navbar.vue";
         <h1>Welcome to Our Freshman Screening Portal</h1>
         <p>Start your academic journey with us</p>
         <div class="cta-buttons">
-          <a href="register.html" class="cta-btn">Register Now</a>
-          <a href="login.html" class="cta-btn secondary">Login</a>
+          <RouterLink to="/register" class="cta-btn">Register Now</RouterLink>
+          <RouterLink to="/login" class="cta-btn secondary">Login</RouterLink>
         </div>
       </div>
     </section>
