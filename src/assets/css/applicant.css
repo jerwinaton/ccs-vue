@@ -1,0 +1,269 @@
+/* Applicant Dashboard Specific Styles */
+
+/* Welcome Banner */
+.welcome-banner {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.welcome-content h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Progress Tracker */
+.progress-tracker {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #eee;
+    z-index: 1;
+}
+
+.progress-step {
+    position: relative;
+    z-index: 2;
+    width: 25%;
+    text-align: center;
+}
+
+.step-icon {
+    width: 60px;
+    height: 60px;
+    background-color: var(--white);
+    border: 2px solid #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.progress-step.completed .step-icon {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+    color: var(--white);
+}
+
+.progress-step.active .step-icon {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: var(--white);
+}
+
+.step-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Upcoming Card */
+.upcoming-card,
+.notifications-card {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.deadline-list,
+.notification-list {
+    margin-top: 1rem;
+}
+
+.deadline-item,
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.deadline-item:last-child,
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.deadline-icon,
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(52, 152, 219, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-color);
+}
+
+.deadline-content h4,
+.notification-content h4 {
+    margin-bottom: 0.5rem;
+}
+
+.notification-item.unread {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.notification-content small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Exams Section */
+.exams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.exam-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.exam-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+}
+
+.exam-card.active .exam-status {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.exam-card.locked .exam-status {
+    background-color: rgba(149, 165, 166, 0.1);
+    color: #95a5a6;
+}
+
+.exam-info {
+    margin-bottom: 1.5rem;
+}
+
+.exam-info p {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.exam-info i {
+    width: 20px;
+    margin-right: 0.5rem;
+    color: var(--secondary-color);
+}
+
+.exam-actions {
+    text-align: center;
+}
+
+.start-exam-btn {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.start-exam-btn:hover {
+    background-color: #2980b9;
+}
+
+.exam-card.locked {
+    opacity: 0.7;
+}
+
+.exam-card.locked .exam-actions {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .progress-steps {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .progress-steps::before {
+        width: 2px;
+        height: 100%;
+        left: 30px;
+        top: 0;
+    }
+
+    .progress-step {
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .step-icon {
+        margin: 0;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-banner {
+        text-align: center;
+    }
+
+    .exam-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}

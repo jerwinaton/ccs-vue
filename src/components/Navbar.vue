@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted } from "vue";
+import { RouterLink } from "vue-router";
 // Mobile Navigation Toggle
 onMounted(() => {
   const hamburger = document.querySelector(".hamburger");
@@ -37,10 +38,10 @@ onMounted(() => {
         <h1>Freshman Screening Portal</h1>
       </div>
       <div class="nav-links">
-        <a href="#home">Home</a>
+        <RouterLink to="/">Home</RouterLink>
         <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-        <a href="login.html" class="login-btn">Login</a>
+        <!-- <a href="#contact">Contact</a> -->
+        <RouterLink to="/login" class="login-btn">Login</RouterLink>
       </div>
       <div class="hamburger">
         <span></span>
