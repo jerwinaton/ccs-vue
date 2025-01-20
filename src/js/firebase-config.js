@@ -1,36 +1,30 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+import firebase from "firebase/app";
+import "firebase/auth"; // Import firebase auth separately
+import "firebase/firestore"; // Import firestore
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCXhg-tr6E09tYXCVNBj9MFUfxJa4-T2ao",
-  authDomain: "ccs-freshmen-screening.firebaseapp.com",
-  projectId: "ccs-freshmen-screening",
-  storageBucket: "ccs-freshmen-screening.firebasestorage.app",
-  messagingSenderId: "407376061142",
-  appId: "1:407376061142:web:d5052d54975e0a4a2a5f77",
-  measurementId: "G-FEZNMF4ZGL",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBkGhlq460DmsOkIzABpLDHMSlnsdvWtr4",
-//     authDomain: "ccs-freshman-screening.firebaseapp.com",
-//     projectId: "ccs-freshman-screening",
-//     storageBucket: "ccs-freshman-screening.firebasestorage.app",
-//     messagingSenderId: "338007472587",
-//     appId: "1:338007472587:web:594f6c3c9c4d59a74e5e4e"
-// };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Initialize Firebase app
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app(); // if already initialized
+}
+
+// Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Collection references
 const usersRef = db.collection("users");
@@ -61,11 +55,11 @@ auth.onAuthStateChanged((user) => {
     // User is signed out
     const currentPath = window.location.pathname;
     if (
-      !currentPath.includes("login.html") &&
-      !currentPath.includes("register.html") &&
-      !currentPath.includes("index.html")
+      !currentPath.includes("login") &&
+      !currentPath.includes("register") &&
+      !currentPath.includes("index")
     ) {
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   }
 });
@@ -179,7 +173,6 @@ const getApplicationStatistics = async () => {
 export {
   auth,
   db,
-  storage,
   createUser,
   createExam,
   submitExam,
