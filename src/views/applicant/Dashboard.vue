@@ -2,12 +2,24 @@
 import ccsLogo from "@/assets/images/image.png";
 import "@/assets/css/applicant-dashboard.css";
 import "@/assets/css/components/loading-overlay.css";
-import "@/js/applicant-dashboard.js";
+import { auth } from "@/js/firebase-config";
+import "firebase/auth";
+
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { auth } from "@/js/firebase-config";
-
 const router = useRouter();
+function logoutUser() {
+  auth
+    .signOut()
+    .then(() => {
+
+      router.push("/");
+    })
+    .catch((error) => {
+      console.error("Error logging out:", error);
+    });
+}
+
 onMounted(() => {
   // DOM Elements
   const sidebar = document.querySelector(".sidebar");
@@ -45,8 +57,7 @@ onMounted(() => {
   // Logout functionality (to be connected with Firebase)
   logoutBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to logout?")) {
-      // Here you would typically sign out from Firebase
-      router.push("/login");
+      logoutUser();
     }
   });
 

@@ -42,12 +42,12 @@ auth.onAuthStateChanged((user) => {
       .then((doc) => {
         if (doc.exists) {
           const userData = doc.data();
-          const userType = userData.userType;
+          const userRole = userData.role;
 
           // Redirect based on user type if not on correct dashboard
           const currentPath = window.location.pathname;
-          if (!currentPath.includes(`${userType}/dashboard`)) {
-            window.location.href = `/${userType}/dashboard.html`;
+          if (!currentPath.includes(`${userRole}/dashboard`)) {
+            window.location.href = `/${userRole}/dashboard`;
           }
         }
       });
