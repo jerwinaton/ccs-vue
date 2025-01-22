@@ -116,6 +116,7 @@ onMounted(() => {
       if (userData.role === "admin") {
         router.push("/admin/dashboard");
       } else {
+        router.push("/applicant/dashboard");
       }
     } catch (error) {
       // Handle errors
