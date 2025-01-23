@@ -230,7 +230,6 @@ import "@/assets/css/components/loading-overlay.css";
 import ccsLogo from "@/assets/images/image.png";
 import avatar from "@/assets/images/avatar.webp";
 import {
-  getFirestore,
   collection,
   query,
   where,
@@ -238,8 +237,11 @@ import {
   limit,
   getDocs,
   onSnapshot,
+  updateDoc,
+  serverTimestamp,
+  doc,
 } from "firebase/firestore";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "@/js/firebase-config.js";
 import Chart from "chart.js/auto";
 import { onMounted } from "vue";
@@ -270,7 +272,7 @@ class AdminDashboard {
   checkAuth() {
     onAuthStateChanged(this.auth, (user) => {
       if (!user || !user.email) {
-        window.location.href = "../login";
+        router.push("/login");
         return;
       }
 
@@ -291,28 +293,30 @@ class AdminDashboard {
   }
 
   async initializeDashboard() {
-    this.showLoading(true);
-    try {
-      // Initialize all dashboard components
-      await Promise.all([
-        this.loadStatistics(),
-        this.initializeCharts(),
-        this.loadRecentApplications(),
-        this.loadUpcomingInterviews(),
-      ]);
+    document.addEventListener("DOMContentLoaded", async () => {
+      this.showLoading(true);
+      try {
+        // Initialize all dashboard components
+        await Promise.all([
+          this.loadStatistics(),
+          this.initializeCharts(),
+          this.loadRecentApplications(),
+          this.loadUpcomingInterviews(),
+        ]);
 
-      // Set current date
-      this.updateCurrentDate();
+        // Set current date
+        this.updateCurrentDate();
 
-      // Setup real-time listeners
-      this.setupRealtimeListeners();
-    } catch (error) {
-      console.error("Error initializing dashboard:", error);
-      // Show error message to user
-      alert("Error loading dashboard data. Please refresh the page.");
-    } finally {
-      this.showLoading(false);
-    }
+        // Setup real-time listeners
+        this.setupRealtimeListeners();
+      } catch (error) {
+        console.error("Error initializing dashboard:", error);
+        // Show error message to user
+        alert("Error loading dashboard data. Please refresh the page.");
+      } finally {
+        this.showLoading(false);
+      }
+    });
   }
 
   async loadStatistics() {
@@ -644,15 +648,15 @@ const itemsPerPage = 10;
 
 // Initialize applicants data
 function initializeApplicants() {
-  // Fetch applicants data from Firebase
-  const applicantsRef = firebase.firestore().collection("applicants");
-  applicantsRef.onSnapshot((snapshot) => {
-    applicants = [];
+  const applicantsRef = collection(db, "applicants"); // Reference the 'applicants' collection
+
+  onSnapshot(applicantsRef, (snapshot) => {
+    const applicants = [];
     snapshot.forEach((doc) => {
       applicants.push({ id: doc.id, ...doc.data() });
     });
-    updateStatistics();
-    renderApplicants();
+    updateStatistics(applicants); // Pass the applicants data to updateStatistics
+    renderApplicants(applicants); // Pass the applicants data to renderApplicants
   });
 }
 
@@ -843,43 +847,58 @@ async function updateStatus(status) {
   const applicantId = document
     .getElementById("applicantId")
     .textContent.replace("ID: ", "");
+
   try {
-    await firebase
-      .firestore()
-      .collection("applicants")
-      .doc(applicantId)
-      .update({
-        status: status,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+    const applicantRef = doc(db, "applicants", applicantId); // Get reference to the specific document
+
+    await updateDoc(applicantRef, {
+      status: status,
+      updatedAt: serverTimestamp(), // Use modular serverTimestamp
+    });
 
     // Close modal
     document.getElementById("applicantModal").style.display = "none";
 
     // Show success message
-    showNotification("Status updated successfully", "success");
+    // showNotification("Status updated successfully", "success");
   } catch (error) {
     console.error("Error updating status:", error);
-    showNotification("Error updating status", "error");
+    // showNotification("Error updating status", "error");
   }
 }
 
 // Export applicants data
-function exportApplicants() {
-  const filteredApplicants = filterApplicants();
-  const csvContent = convertToCSV(filteredApplicants);
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute(
-    "download",
-    `applicants_export_${new Date().toISOString()}.csv`
-  );
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+async function exportApplicants() {
+  try {
+    const applicantsRef = collection(db, "applicants"); // Reference the 'applicants' collection
+    const snapshot = await getDocs(applicantsRef);
+
+    // Convert Firestore documents to an array of objects
+    const applicants = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    // Filter applicants if needed
+    const filteredApplicants = filterApplicants(applicants);
+
+    // Convert the filtered data to CSV
+    const csvContent = convertToCSV(filteredApplicants);
+
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `applicants_export_${new Date().toISOString()}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error exporting applicants:", error);
+    showNotification("Error exporting applicants", "error");
+  }
 }
 
 // Convert applicants data to CSV
