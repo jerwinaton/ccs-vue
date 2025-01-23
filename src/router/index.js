@@ -27,6 +27,42 @@ const router = createRouter({
 
       component: () => import("../views/applicant/Dashboard.vue"),
     },
+    {
+      path: "/applicant/take-exam",
+      name: "applicantTakeExam",
+
+      component: () => import("../views/applicant/TakeExam.vue"),
+    },
+    {
+      path: "/applicant/exam-results",
+      name: "applicantExamResults",
+
+      component: () => import("../views/applicant/ExamResults.vue"),
+    },
+    {
+      path: "/admin/dashboard",
+      name: "adminDashboard",
+
+      component: () => import("../views/admin/Dashboard.vue"),
+    },
+    {
+      path: "/admin/exams",
+      name: "adminExams",
+
+      component: () => import("../views/admin/Exams.vue"),
+    },
+    {
+      path: "/admin/interviews",
+      name: "adminInterviews",
+
+      component: () => import("../views/admin/Interviews.vue"),
+    },
+    {
+      path: "/admin/create-exam",
+      name: "adminCreateExam",
+
+      component: () => import("../views/admin/CreateExam.vue"),
+    },
   ],
 });
 

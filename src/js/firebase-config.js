@@ -1,7 +1,20 @@
+/* eslint-disable no-useless-catch */
 // Import the functions you need from the SDKs you need
-import firebase from "firebase/app";
-import "firebase/auth"; // Import firebase auth separately
-import "firebase/firestore"; // Import firestore
+
+import { initializeApp } from "firebase/app";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"; // Import firebase auth separately
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from "firebase/firestore"; // Import firestore
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,42 +28,37 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// Initialize Firebase app
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-} else {
-  firebase.app(); // if already initialized
-}
+
+const app = initializeApp(firebaseConfig);
 
 // Firebase services
-const auth = firebase.auth();
-const db = firebase.firestore();
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Collection references
-const usersRef = db.collection("users");
-const examsRef = db.collection("exams");
-const submissionsRef = db.collection("submissions");
-const interviewsRef = db.collection("interviews");
+const usersRef = collection(db, "users");
+const examsRef = collection(db, "exams");
+const submissionsRef = collection(db, "submissions");
+const interviewsRef = collection(db, "interviews");
 
 // Authentication state observer
 auth.onAuthStateChanged((user) => {
   if (user) {
     // User is signed in
-    usersRef
-      .doc(user.uid)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          const userData = doc.data();
-          const userRole = userData.role;
+    const userDocRef = doc(db, "users", user.uid);
 
-          // Redirect based on user type if not on correct dashboard
-          const currentPath = window.location.pathname;
-          if (!currentPath.includes(`${userRole}/dashboard`)) {
-            window.location.href = `/${userRole}/dashboard`;
-          }
+    getDoc(userDocRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const userRole = userData.role;
+
+        // Redirect based on user type if not on correct dashboard
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes(`${userRole}/dashboard`)) {
+          window.location.href = `/${userRole}/dashboard`;
         }
-      });
+      }
+    });
   } else {
     // User is signed out
     const currentPath = window.location.pathname;
@@ -68,14 +76,15 @@ auth.onAuthStateChanged((user) => {
 const createUser = async (userData) => {
   try {
     // Create authentication account
-    const userCredential = await auth.createUserWithEmailAndPassword(
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
       userData.email,
       userData.password
     );
     const user = userCredential.user;
 
     // Create user document in Firestore
-    await usersRef.doc(user.uid).set({
+    await setDoc(doc(usersRef, user.uid), {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
@@ -84,7 +93,7 @@ const createUser = async (userData) => {
       school: userData.school,
       program: userData.program,
       userType: "applicant",
-      createdAt: db.serverTimestamp(),
+      createdAt: serverTimestamp(),
       status: "pending",
     });
 
@@ -97,14 +106,14 @@ const createUser = async (userData) => {
 // Exam management functions
 const createExam = async (examData) => {
   try {
-    const examRef = await examsRef.add({
+    const examRef = await addDoc(examsRef, {
       title: examData.title,
       description: examData.description,
       type: examData.type,
       questions: examData.questions,
       duration: examData.duration,
-      createdBy: auth.currentUser.uid,
-      createdAt: db.serverTimestamp(),
+      createdBy: auth.currentUser?.uid || null,
+      createdAt: serverTimestamp(),
       status: "active",
     });
     return examRef;
@@ -115,11 +124,11 @@ const createExam = async (examData) => {
 
 const submitExam = async (examId, answers) => {
   try {
-    const submissionRef = await submissionsRef.add({
+    const submissionRef = await addDoc(submissionsRef, {
       examId: examId,
-      userId: auth.currentUser.uid,
+      userId: auth.currentUser?.uid || null,
       answers: answers,
-      submittedAt: db.serverTimestamp(),
+      submittedAt: serverTimestamp(),
       status: "submitted",
     });
     return submissionRef;
@@ -131,14 +140,14 @@ const submitExam = async (examId, answers) => {
 // Interview management functions
 const scheduleInterview = async (interviewData) => {
   try {
-    const interviewRef = await interviewsRef.add({
+    const interviewRef = await addDoc(interviewsRef, {
       applicantId: interviewData.applicantId,
-      scheduledBy: auth.currentUser.uid,
+      scheduledBy: auth.currentUser?.uid || null,
       dateTime: interviewData.dateTime,
       duration: interviewData.duration,
       meetingLink: interviewData.meetingLink,
       status: "scheduled",
-      createdAt: db.serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
     return interviewRef;
   } catch (error) {
@@ -156,7 +165,11 @@ const getApplicationStatistics = async () => {
       failed: 0,
     };
 
-    const snapshot = await usersRef.where("userType", "==", "applicant").get();
+    const applicantsQuery = query(
+      usersRef,
+      where("userType", "==", "applicant")
+    );
+    const snapshot = await getDocs(applicantsQuery);
     snapshot.forEach((doc) => {
       const data = doc.data();
       stats.total++;
