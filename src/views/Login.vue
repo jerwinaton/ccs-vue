@@ -64,6 +64,8 @@ import ccsLogo from "../assets/images/image.png";
 
 import { auth, db } from "../js/firebase-config";
 import { onMounted } from "vue";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 const router = useRouter();
 onMounted(() => {
   // DOM Elements
@@ -72,9 +74,6 @@ onMounted(() => {
   const loadingSpinner = document.getElementById("loadingSpinner");
   const passwordInput = document.getElementById("password");
   const passwordToggle = document.querySelector(".password-toggle");
-
-  window.auth = auth;
-  window.db = db;
 
   // Password visibility toggle
   passwordToggle.addEventListener("click", function () {
@@ -101,15 +100,15 @@ onMounted(() => {
       errorMessage.style.display = "none";
 
       // Sign in user
-      const userCredential = await window.auth.signInWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
         loginForm.email.value,
         passwordInput.value
       );
 
       // Get user data
-      const userDoc = await window.db
-        .doc(`users/${userCredential.user.uid}`)
-        .get();
+      const userDocRef = doc(db, "users", userCredential.user.uid);
+      const userDoc = await getDoc(userDocRef);
       const userData = userDoc.data();
 
       // Redirect based on role
@@ -120,7 +119,13 @@ onMounted(() => {
       }
     } catch (error) {
       // Handle errors
-      errorMessage.textContent = error.message;
+      if (error.code === "auth/invalid-credential") {
+        errorMessage.textContent =
+          "Invalid Credentials. Please check your email and password.";
+      } else {
+        errorMessage.textContent = error.message;
+      }
+
       errorMessage.style.display = "block";
       loadingSpinner.style.display = "none";
     }
