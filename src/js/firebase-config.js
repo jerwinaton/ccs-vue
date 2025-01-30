@@ -15,6 +15,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore"; // Import firestore
+import { useRouter } from "vue-router";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -40,7 +41,6 @@ const usersRef = collection(db, "users");
 const examsRef = collection(db, "exams");
 const submissionsRef = collection(db, "submissions");
 const interviewsRef = collection(db, "interviews");
-
 // Authentication state observer
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -53,21 +53,30 @@ auth.onAuthStateChanged((user) => {
         const userRole = userData.role;
 
         // Redirect based on user type if not on correct dashboard
+        // Get current page path
         const currentPath = window.location.pathname;
-        if (!currentPath.includes(`${userRole}/dashboard`)) {
-          window.location.href = `/${userRole}/dashboard`;
+
+        // Define allowed non-dashboard pages
+        const allowedPages = [
+          "/admin/dashboard",
+          "/admin/exams",
+          "/admin/interviews",
+          "/admin/exams/create",
+        ];
+        // Only redirect to dashboard if not already on an allowed page
+        if (
+          !currentPath.includes(`${userRole}/dashboard`) &&
+          !allowedPages.some((page) => currentPath.includes(page))
+        ) {
+          router.push(`/${userRole}/dashboard`);
         }
       }
     });
   } else {
     // User is signed out
     const currentPath = window.location.pathname;
-    if (
-      !currentPath.includes("login") &&
-      !currentPath.includes("register") &&
-      !currentPath.includes("index")
-    ) {
-      window.location.href = "/login";
+    if (!["/login", "/register", "/index"].includes(currentPath)) {
+      router.push("/login");
     }
   }
 });

@@ -255,21 +255,21 @@
   </main>
 
   <!-- Loading Overlay -->
-  <div class="loading-overlay">
+  <!-- <div class="loading-overlay">
     <div class="loading-content">
       <div class="spinner"></div>
       <p>Loading...</p>
     </div>
-  </div>
+  </div> -->
 </template>
 <script setup>
 import { onMounted, computed } from "vue";
 import { useExamStore } from "@/stores/admin/exam";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
 import { RouterLink } from "vue-router";
-// import "@/assets/css/styles.css";
-// import "@/assets/css/components/loading-overlay.css";
-// import "@/assets/css/admin-dashboard.css";
+import "@/assets/css/styles.css";
+import "@/assets/css/components/loading-overlay.css";
+import "@/assets/css/admin-dashboard.css";
 import "@/assets/css/exam.css";
 const examStore = useExamStore();
 import { storeToRefs } from "pinia";

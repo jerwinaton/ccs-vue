@@ -1,8 +1,7 @@
 // Import Firebase modules
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "./firebase-config";
-
+import { useRouter } from "vue-router";
 export class ExamCreator {
   constructor() {
     this.questionsList = document.getElementById("questionsList");
@@ -15,6 +14,7 @@ export class ExamCreator {
 
     this.initializeFirebase();
     this.initializeEventListeners();
+    this.router = useRouter();
     // this.setupAuthCheck();
   }
 
@@ -308,13 +308,13 @@ export class ExamCreator {
 
       // Save to Firebase
       const examRef = await addDoc(collection(this.db, "exams"), examData);
-
+      console.log("Exam saved:", examRef);
       this.showSuccess("Exam saved successfully!");
       this.clearLocalStorage();
 
       // Redirect after a short delay
       setTimeout(() => {
-        window.location.href = "exams.html";
+        this.router.push("/exams");
       }, 1500);
     } catch (error) {
       console.error("Error saving exam:", error);
@@ -355,7 +355,11 @@ export class ExamCreator {
       this.loadExamData(data);
     }
   }
-
+  loadExamData(data) {
+    if (!data) return;
+    this.examData = data;
+    console.log("Exam data loaded:", data);
+  }
   clearLocalStorage() {
     localStorage.removeItem("examDraft");
   }
@@ -382,6 +386,86 @@ export class ExamCreator {
   showValidationErrors(errors) {
     const errorList = errors.map((error) => `• ${error}`).join("\n");
     alert("Please fix the following errors:\n\n" + errorList);
+  }
+  collectMultipleChoiceData(questionItem) {
+    const options = [];
+    questionItem.querySelectorAll(".option-item").forEach((optionItem) => {
+      options.push({
+        text: optionItem.querySelector("input[type='text']").value,
+        correct: optionItem.querySelector("input[type='radio']").checked,
+      });
+    });
+    return { options };
+  }
+
+  collectEssayData(questionItem) {
+    return {
+      wordLimit: parseInt(
+        questionItem.querySelector(".word-limit")?.value || "0"
+      ),
+    };
+  }
+
+  collectEnumerationData(questionItem) {
+    const answers = [];
+    questionItem
+      .querySelectorAll(".answer-item input")
+      .forEach((answerItem) => {
+        answers.push(answerItem.value);
+      });
+    return { answers };
+  }
+
+  collectCodingData(questionItem) {
+    const testCases = [];
+    questionItem.querySelectorAll(".test-case-item").forEach((testCaseItem) => {
+      testCases.push({
+        input: testCaseItem.querySelector(".test-input").value,
+        output: testCaseItem.querySelector(".test-output").value,
+      });
+    });
+    return { testCases };
+  }
+
+  validateMultipleChoice(question, prefix) {
+    const errors = [];
+    if (!question.options || question.options.length < 2) {
+      errors.push(prefix + "At least two options are required");
+    }
+    if (!question.options.some((option) => option.correct)) {
+      errors.push(prefix + "At least one correct answer is required");
+    }
+    return errors;
+  }
+
+  validateEssay(question, prefix) {
+    console.log(question);
+    const errors = [];
+    if (question.wordLimit < 1) {
+      errors.push(prefix + "Word limit must be greater than zero");
+    }
+    return errors;
+  }
+
+  validateEnumeration(question, prefix) {
+    const errors = [];
+    if (!question.answers || question.answers.length === 0) {
+      errors.push(prefix + "At least one answer is required");
+    }
+    return errors;
+  }
+
+  validateCoding(question, prefix) {
+    const errors = [];
+    if (!question.testCases || question.testCases.length === 0) {
+      errors.push(prefix + "At least one test case is required");
+    }
+    question.testCases.forEach((testCase, i) => {
+      if (!testCase.input || !testCase.output) {
+        errors.push(prefix + `Test case ${i + 1} must have input and output`);
+      }
+    });
+    return errors;
   }
 }
 

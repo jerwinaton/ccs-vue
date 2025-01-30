@@ -299,6 +299,8 @@ import Sidebar from "../components/Sidebar.vue";
 import "@/assets/css/styles.css";
 import "@/assets/css/components/loading-overlay.css";
 import "@/assets/css/admin-dashboard.css";
+import "@/assets/css/exam-creator.css";
+
 onMounted(() => {
   const examCreator = new ExamCreator();
   examCreator.loadFromLocalStorage();
