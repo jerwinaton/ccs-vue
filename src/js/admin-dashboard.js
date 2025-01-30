@@ -389,7 +389,7 @@ export class AdminDashboard {
   async handleLogout() {
     try {
       await signOut(this.auth);
-      window.location.href = "../login.html";
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error signing out:", error);
       alert("Error signing out. Please try again.");
