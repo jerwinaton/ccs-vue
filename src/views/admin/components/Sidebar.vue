@@ -33,7 +33,7 @@
             <span>Interviews</span>
           </RouterLink>
         </li>
-        <li>
+        <!-- <li>
           <a href="reports.html">
             <i class="fas fa-chart-bar"></i>
             <span>Reports</span>
@@ -68,7 +68,7 @@
             <i class="fas fa-cog"></i>
             <span>Settings</span>
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
 
