@@ -84,6 +84,7 @@
 import { computed } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 const route = useRoute();
+import ccsLogo from "@/assets/images/image.png";
 
 // Function to check if the current route matches the given path
 const isActive = computed(() => (path) => route.path.startsWith(path));

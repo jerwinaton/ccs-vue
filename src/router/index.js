@@ -49,7 +49,7 @@ const router = createRouter({
       path: "/admin/exams",
       name: "adminExams",
 
-      component: () => import("../views/admin/Exams.vue"),
+      component: () => import("../views/admin/Exams/Dashboard.vue"),
     },
     {
       path: "/admin/interviews",
@@ -58,10 +58,10 @@ const router = createRouter({
       component: () => import("../views/admin/Interviews.vue"),
     },
     {
-      path: "/admin/create-exam",
+      path: "/admin/exams/create",
       name: "adminCreateExam",
 
-      component: () => import("../views/admin/CreateExam.vue"),
+      component: () => import("../views/admin/Exams/Create.vue"),
     },
   ],
 });

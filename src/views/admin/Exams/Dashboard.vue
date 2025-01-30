@@ -8,9 +8,9 @@
         <h1>Exam Management</h1>
       </div>
       <div class="header-right">
-        <button class="btn-create" onclick="location.href='create-exam.html'">
+        <RouterLink to="/admin/exams/create" class="btn btn-primary">
           <i class="fas fa-plus"></i> Create New Exam
-        </button>
+        </RouterLink>
       </div>
     </header>
 
@@ -268,6 +268,7 @@
 import { onMounted } from "vue";
 import { useExamStore } from "@/stores/admin/exam";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
+import { RouterLink } from "vue-router";
 
 const examStore = useExamStore();
 
