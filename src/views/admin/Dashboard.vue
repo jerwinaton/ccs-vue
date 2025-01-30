@@ -1,85 +1,6 @@
 <template>
+  <Sidebar />
   <div class="admin-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <img :src="ccsLogo" alt="Logo" class="brand-logo" />
-        <h2>Admin Portal</h2>
-      </div>
-
-      <nav class="sidebar-menu">
-        <ul>
-          <li class="active">
-            <a href="dashboard.html">
-              <i class="fas fa-home"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="applicants.html">
-              <i class="fas fa-users"></i>
-              <span>Applicants</span>
-            </a>
-          </li>
-          <li>
-            <a href="exams.html">
-              <i class="fas fa-file-alt"></i>
-              <span>Exams</span>
-            </a>
-          </li>
-          <li>
-            <a href="interviews.html">
-              <i class="fas fa-calendar-alt"></i>
-              <span>Interviews</span>
-            </a>
-          </li>
-          <li>
-            <a href="reports.html">
-              <i class="fas fa-chart-bar"></i>
-              <span>Reports</span>
-            </a>
-          </li>
-          <li>
-            <a href="analytics.html">
-              <i class="fas fa-chart-line"></i>
-              <span>Analytics</span>
-            </a>
-          </li>
-          <li>
-            <a href="notifications.html">
-              <i class="fas fa-bell"></i>
-              <span>Notifications</span>
-            </a>
-          </li>
-          <li>
-            <a href="users.html">
-              <i class="fas fa-user-cog"></i>
-              <span>User Management</span>
-            </a>
-          </li>
-          <li>
-            <a href="audit.html">
-              <i class="fas fa-history"></i>
-              <span>Audit Logs</span>
-            </a>
-          </li>
-          <li>
-            <a href="settings.html">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="sidebar-footer">
-        <button id="logoutBtn" class="btn-logout">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </button>
-      </div>
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content">
       <!-- Header -->
@@ -227,7 +148,6 @@ import "@/assets/css/admin-dashboard.css";
 import "@/assets/css/styles.css";
 import "@/assets/css/components/loading-overlay.css";
 
-import ccsLogo from "@/assets/images/image.png";
 import avatar from "@/assets/images/avatar.webp";
 import {
   collection,
@@ -246,6 +166,7 @@ import { auth, db } from "@/js/firebase-config.js";
 import Chart from "chart.js/auto";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
+import Sidebar from "@/views/admin/components/Sidebar.vue";
 
 const router = useRouter();
 class AdminDashboard {
@@ -874,7 +795,10 @@ async function exportApplicants() {
     const snapshot = await getDocs(applicantsRef);
 
     // Convert Firestore documents to an array of objects
-    const applicants = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const applicants = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     // Filter applicants if needed
     const filteredApplicants = filterApplicants(applicants);
