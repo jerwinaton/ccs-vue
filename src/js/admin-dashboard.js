@@ -22,7 +22,7 @@ export class AdminDashboard {
     this.auth = auth;
 
     // Initialize charts
-    this.applicantProgressChart = null;
+    this.applicationTrendsChart = null;
     this.examPerformanceChart = null;
 
     // Check authentication
@@ -200,27 +200,18 @@ export class AdminDashboard {
         },
       },
     });
-    console.log("Charts initialized");
-    console.log(this.applicationTrendsChart);
-    console.log(this.examPerformanceChart);
 
     // Load initial chart data
-    // await this.updateChartData();
+    await this.updateChartData();
   }
 
   async updateChartData() {
     try {
       console.log(
-        "Updating chart data...",
+        "Updating chart data now...",
         this.applicationTrendsChart,
         this.examPerformanceChart
       );
-
-      // Ensure charts are initialized before updating
-      if (!this.applicationTrendsChart || !this.examPerformanceChart) {
-        console.error("Charts not initialized. Skipping update.");
-        return;
-      }
 
       // Fetch Applicant Data
       const applicantsQuery = query(
@@ -239,10 +230,10 @@ export class AdminDashboard {
       });
 
       //  Ensure the chart exists before updating it
-      if (this.applicantProgressChart) {
-        this.applicantProgressChart.data.labels = dates;
-        this.applicantProgressChart.data.datasets[0].data = counts;
-        this.applicantProgressChart.update();
+      if (this.applicationTrendsChart) {
+        this.applicationTrendsChart.data.labels = dates;
+        this.applicationTrendsChart.data.datasets[0].data = counts;
+        this.applicationTrendsChart.update();
       } else {
         console.warn("Applicant Progress Chart is not initialized.");
       }

@@ -92,7 +92,9 @@
         <div class="table-container">
           <div class="table-header">
             <h3>Recent Applications</h3>
-            <a href="applicants.html" class="btn-view-all">View All</a>
+            <RouterLink to="/admin/applicants" class="btn-view-all"
+              >View All</RouterLink
+            >
           </div>
           <div class="table-responsive">
             <table>
@@ -113,7 +115,9 @@
         <div class="table-container">
           <div class="table-header">
             <h3>Upcoming Interviews</h3>
-            <a href="interviews.html" class="btn-view-all">View All</a>
+            <RouterLink to="/admin/interviews">
+              class="btn-view-all">View All</RouterLink
+            >
           </div>
           <div class="table-responsive">
             <table>
@@ -152,9 +156,10 @@ import avatar from "@/assets/images/avatar.webp";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
 import { AdminDashboard } from "@/js/admin-dashboard";
 import { onMounted } from "vue";
+import { RouterLink } from "vue-router";
 onMounted(async () => {
   const adminDashboard = new AdminDashboard();
   await adminDashboard.initializeDashboard();
-  // adminDashboard.setupEventListeners();
+  adminDashboard.setupEventListeners();
 });
 </script>
