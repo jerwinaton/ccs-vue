@@ -51,6 +51,12 @@ body::before {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
     z-index: -1;
 }
+.uppercase{
+    text-transform: uppercase;
+}
+.capitalize{
+    text-transform: capitalize;
+}
 
 /* Login and Registration Container */
 .login-container,

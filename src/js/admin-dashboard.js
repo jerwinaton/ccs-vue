@@ -1,5 +1,4 @@
 import {
-  getFirestore,
   collection,
   query,
   where,
@@ -7,16 +6,15 @@ import {
   limit,
   getDocs,
   onSnapshot,
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  serverTimestamp,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase-config.js";
 import Chart from "chart.js/auto";
 
-class AdminDashboard {
+export class AdminDashboard {
   constructor() {
     // Initialize Firebase
 
@@ -28,26 +26,13 @@ class AdminDashboard {
     this.examPerformanceChart = null;
 
     // Check authentication
-    this.checkAuth();
+    // this.checkAuth();
 
     // Initialize dashboard
     this.initializeDashboard();
 
     // Setup event listeners
     this.setupEventListeners();
-  }
-
-  checkAuth() {
-    onAuthStateChanged(this.auth, (user) => {
-      if (!user || !user.email) {
-        window.location.href = "../login";
-        return;
-      }
-
-      // Update admin profile
-      console.log(user);
-      this.updateAdminProfile(user);
-    });
   }
 
   updateAdminProfile(user) {
@@ -63,10 +48,19 @@ class AdminDashboard {
   async initializeDashboard() {
     this.showLoading(true);
     try {
-      // Initialize all dashboard components
+      console.log("Initializing dashboard...");
+      // Load data in parallel, but ensure charts are created first
+      await this.initializeCharts();
+
+      // Ensure charts exist before updating them
+      if (this.applicationTrendsChart && this.examPerformanceChart) {
+        await this.updateChartData();
+      } else {
+        console.error("Charts were not initialized properly.");
+      }
+
       await Promise.all([
         this.loadStatistics(),
-        this.initializeCharts(),
         this.loadRecentApplications(),
         this.loadUpcomingInterviews(),
       ]);
@@ -107,7 +101,7 @@ class AdminDashboard {
         where("status", "==", "pending")
       );
       const interviewsSnapshot = await getDocs(interviewsQuery);
-      document.getElementById("pendingInterviews").textContent =
+      document.getElementById("scheduledInterviews").textContent =
         interviewsSnapshot.size;
 
       // Calculate pass rate
@@ -120,7 +114,7 @@ class AdminDashboard {
         (passedSnapshot.size / applicantsSnapshot.size) *
         100
       ).toFixed(1);
-      document.getElementById("passRate").textContent = passRate + "%";
+      document.getElementById("successRate").textContent = passRate + "%";
     } catch (error) {
       console.error("Error loading statistics:", error);
       throw error;
@@ -129,10 +123,17 @@ class AdminDashboard {
 
   async initializeCharts() {
     // Initialize Applicant Progress Chart
+    // Check if a Chart instance already exists on this canvas
+    if (this.applicationTrendsChart) {
+      this.applicationTrendsChart.destroy(); // Destroy previous instance
+    }
+    if (this.examPerformanceChart) {
+      this.examPerformanceChart.destroy(); // Destroy previous instance
+    }
     const applicantProgressCtx = document
-      .getElementById("applicantProgressChart")
+      .getElementById("applicationTrends")
       .getContext("2d");
-    this.applicantProgressChart = new Chart(applicantProgressCtx, {
+    this.applicationTrendsChart = new Chart(applicantProgressCtx, {
       type: "line",
       data: {
         labels: [],
@@ -164,7 +165,7 @@ class AdminDashboard {
 
     // Initialize Exam Performance Chart
     const examPerformanceCtx = document
-      .getElementById("examPerformanceChart")
+      .getElementById("examPerformance")
       .getContext("2d");
     this.examPerformanceChart = new Chart(examPerformanceCtx, {
       type: "bar",
@@ -199,14 +200,29 @@ class AdminDashboard {
         },
       },
     });
+    console.log("Charts initialized");
+    console.log(this.applicationTrendsChart);
+    console.log(this.examPerformanceChart);
 
     // Load initial chart data
-    await this.updateChartData();
+    // await this.updateChartData();
   }
 
   async updateChartData() {
     try {
-      // Update Applicant Progress Chart
+      console.log(
+        "Updating chart data...",
+        this.applicationTrendsChart,
+        this.examPerformanceChart
+      );
+
+      // Ensure charts are initialized before updating
+      if (!this.applicationTrendsChart || !this.examPerformanceChart) {
+        console.error("Charts not initialized. Skipping update.");
+        return;
+      }
+
+      // Fetch Applicant Data
       const applicantsQuery = query(
         collection(this.db, "applicants"),
         orderBy("createdAt", "desc"),
@@ -222,11 +238,16 @@ class AdminDashboard {
         counts.unshift(counts.length > 0 ? counts[0] + 1 : 1);
       });
 
-      this.applicantProgressChart.data.labels = dates;
-      this.applicantProgressChart.data.datasets[0].data = counts;
-      this.applicantProgressChart.update();
+      //  Ensure the chart exists before updating it
+      if (this.applicantProgressChart) {
+        this.applicantProgressChart.data.labels = dates;
+        this.applicantProgressChart.data.datasets[0].data = counts;
+        this.applicantProgressChart.update();
+      } else {
+        console.warn("Applicant Progress Chart is not initialized.");
+      }
 
-      // Update Exam Performance Chart
+      // Fetch data for Exam Performance Chart
       const examResultsQuery = query(collection(this.db, "examResults"));
       const examResultsSnapshot = await getDocs(examResultsQuery);
 
@@ -237,8 +258,12 @@ class AdminDashboard {
         performanceBuckets[bucketIndex]++;
       });
 
-      this.examPerformanceChart.data.datasets[0].data = performanceBuckets;
-      this.examPerformanceChart.update();
+      if (this.examPerformanceChart) {
+        this.examPerformanceChart.data.datasets[0].data = performanceBuckets;
+        this.examPerformanceChart.update();
+      } else {
+        console.warn("Exam Performance Chart is not initialized.");
+      }
     } catch (error) {
       console.error("Error updating chart data:", error);
       throw error;
@@ -254,18 +279,20 @@ class AdminDashboard {
       );
       const snapshot = await getDocs(applicationsQuery);
 
-      const tbody = document.querySelector("#recentApplicationsTable tbody");
+      const tbody = document.querySelector("#recentApplications");
       tbody.innerHTML = "";
 
       snapshot.forEach((doc) => {
         const data = doc.data();
         const tr = document.createElement("tr");
         tr.innerHTML = `
-                    <td>${data.name}</td>
-                    <td>${data.createdAt.toDate().toLocaleDateString()}</td>
-                    <td><span class="status-badge status-${data.status.toLowerCase()}">${
-          data.status
-        }</span></td>
+                    <td class="capitalize">${data.lastName}, ${
+          data.firstName
+        }</td>
+                    <td>${data.createdAt?.toDate().toLocaleDateString()}</td>
+                    <td><span class="capitalize status-badge status-${
+                      data.applicationStatus
+                    }">${data.applicationStatus}</span></td>
                     <td>
                         <button class="action-btn btn-view" data-id="${
                           doc.id
@@ -291,11 +318,12 @@ class AdminDashboard {
       );
       const snapshot = await getDocs(interviewsQuery);
 
-      const tbody = document.querySelector("#upcomingInterviewsTable tbody");
+      const tbody = document.querySelector("#pendingInterviews");
       tbody.innerHTML = "";
 
       snapshot.forEach((doc) => {
         const data = doc.data();
+        console.log(data);
         const tr = document.createElement("tr");
         tr.innerHTML = `
                     <td>${data.applicantName}</td>
@@ -329,7 +357,7 @@ class AdminDashboard {
       if (!snapshot.empty) {
         this.loadRecentApplications();
         this.loadStatistics();
-        this.updateChartData();
+        // this.updateChartData();
       }
     });
 
@@ -413,18 +441,18 @@ const itemsPerPage = 10;
 
 // Initialize applicants data
 function initializeApplicants() {
-  // Fetch applicants data from Firebase
-  const applicantsRef = firebase.firestore().collection("applicants");
-  applicantsRef.onSnapshot((snapshot) => {
-    applicants = [];
+  const applicantsRef = collection(db, "applicants");
+
+  onSnapshot(applicantsRef, (snapshot) => {
+    let applicants = [];
     snapshot.forEach((doc) => {
       applicants.push({ id: doc.id, ...doc.data() });
     });
+
     updateStatistics();
     renderApplicants();
   });
 }
-
 // Update statistics cards
 function updateStatistics() {
   const total = applicants.length;
@@ -613,14 +641,12 @@ async function updateStatus(status) {
     .getElementById("applicantId")
     .textContent.replace("ID: ", "");
   try {
-    await firebase
-      .firestore()
-      .collection("applicants")
-      .doc(applicantId)
-      .update({
-        status: status,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+    const applicantRef = doc(db, "applicants", applicantId);
+
+    await updateDoc(applicantRef, {
+      status: status,
+      updatedAt: serverTimestamp(),
+    });
 
     // Close modal
     document.getElementById("applicantModal").style.display = "none";

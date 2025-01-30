@@ -263,7 +263,7 @@
   </div> -->
 </template>
 <script setup>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { useExamStore } from "@/stores/admin/exam";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
 import { RouterLink } from "vue-router";
@@ -401,7 +401,8 @@ function updatePagination(totalItems) {
 }
 onMounted(() => {
   initializeExams();
+});
+watch([totalExams, activeExams, completedToday, avgScore], () => {
   updateStatistics();
-  renderExams();
 });
 </script>
