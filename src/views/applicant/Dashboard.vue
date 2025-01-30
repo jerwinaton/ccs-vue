@@ -1,5 +1,6 @@
 <script setup>
 import ccsLogo from "@/assets/images/image.png";
+import avatar from "@/assets/images/avatar.webp";
 import "@/assets/css/applicant-dashboard.css";
 import "@/assets/css/components/loading-overlay.css";
 import { auth } from "@/js/firebase-config";
@@ -12,7 +13,6 @@ function logoutUser() {
   auth
     .signOut()
     .then(() => {
-
       router.push("/");
     })
     .catch((error) => {
@@ -148,11 +148,7 @@ onMounted(() => {
             <h3 id="applicantId">Loading...</h3>
             <p>Applicant ID</p>
           </div>
-          <img
-            src="../assets/default-avatar.png"
-            alt="Profile"
-            id="applicantAvatar"
-          />
+          <img :src="avatar" alt="Profile" id="applicantAvatar" />
         </div>
       </header>
 
