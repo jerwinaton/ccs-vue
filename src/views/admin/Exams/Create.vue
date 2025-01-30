@@ -1,6 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import Sidebar from "../components/Sidebar.vue";
+import "@/assets/css/styles.css";
+import "@/assets/css/components/loading-overlay.css";
+import "@/assets/css/admin-dashboard.css";
 </script>
 
 <template>

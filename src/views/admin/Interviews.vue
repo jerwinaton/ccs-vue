@@ -300,4 +300,7 @@
 </template>
 <script setup>
 import Sidebar from "@/views/admin/components/Sidebar.vue";
+import "@/assets/css/styles.css";
+import "@/assets/css/components/loading-overlay.css";
+import "@/assets/css/admin-dashboard.css";
 </script>

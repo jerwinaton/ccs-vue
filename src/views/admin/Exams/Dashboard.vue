@@ -16,42 +16,40 @@
 
     <!-- Exam Statistics -->
     <section class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <div class="stat-info">
-            <h3>Total Exams</h3>
-            <p class="stat-number" id="totalExams">0</p>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-file-alt"></i>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-info">
-            <h3>Active Examinees</h3>
-            <p class="stat-number" id="activeExaminees">0</p>
-          </div>
+        <div class="stat-info">
+          <h3>Total Exams</h3>
+          <p class="stat-number" id="totalExams">0</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
-          </div>
-          <div class="stat-info">
-            <h3>Completed Today</h3>
-            <p class="stat-number" id="completedToday">0</p>
-          </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <div class="stat-info">
-            <h3>Average Score</h3>
-            <p class="stat-number" id="averageScore">0%</p>
-          </div>
+        <div class="stat-info">
+          <h3>Active Examinees</h3>
+          <p class="stat-number" id="activeExaminees">0</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Completed Today</h3>
+          <p class="stat-number" id="completedToday">0</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Average Score</h3>
+          <p class="stat-number" id="averageScore">0%</p>
         </div>
       </div>
     </section>
@@ -269,7 +267,10 @@ import { onMounted } from "vue";
 import { useExamStore } from "@/stores/admin/exam";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
 import { RouterLink } from "vue-router";
-
+import "@/assets/css/styles.css";
+import "@/assets/css/components/loading-overlay.css";
+import "@/assets/css/admin-dashboard.css";
+import "@/assets/css/exam.css";
 const examStore = useExamStore();
 
 onMounted(() => {
