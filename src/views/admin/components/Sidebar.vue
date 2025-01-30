@@ -16,7 +16,7 @@
           </RouterLink>
         </li>
         <li :class="{ active: isActive('/admin/applicants') }">
-          <RouterLink to="/admin/dashboard">
+          <RouterLink to="/admin/applicants">
             <i class="fas fa-users"></i>
             <span>Applicants</span>
           </RouterLink>

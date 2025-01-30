@@ -16,7 +16,7 @@ import {
   where,
 } from "firebase/firestore"; // Import firestore
 import { useRouter } from "vue-router";
-
+const router = useRouter();
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
