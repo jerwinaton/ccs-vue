@@ -1,10 +1,4 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
-import Sidebar from "../components/Sidebar.vue";
-import "@/assets/css/styles.css";
-import "@/assets/css/components/loading-overlay.css";
-import "@/assets/css/admin-dashboard.css";
-</script>
 
 <template>
   <div class="dashboard-container">
@@ -298,3 +292,15 @@ import "@/assets/css/admin-dashboard.css";
     </div>
   </template>
 </template>
+<script setup>
+import { ExamCreator } from "@/js/exam-creator";
+import { onMounted } from "vue";
+import Sidebar from "../components/Sidebar.vue";
+import "@/assets/css/styles.css";
+import "@/assets/css/components/loading-overlay.css";
+import "@/assets/css/admin-dashboard.css";
+onMounted(() => {
+  const examCreator = new ExamCreator();
+  examCreator.loadFromLocalStorage();
+});
+</script>

@@ -263,17 +263,145 @@
   </div>
 </template>
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { useExamStore } from "@/stores/admin/exam";
 import Sidebar from "@/views/admin/components/Sidebar.vue";
 import { RouterLink } from "vue-router";
-import "@/assets/css/styles.css";
-import "@/assets/css/components/loading-overlay.css";
-import "@/assets/css/admin-dashboard.css";
+// import "@/assets/css/styles.css";
+// import "@/assets/css/components/loading-overlay.css";
+// import "@/assets/css/admin-dashboard.css";
 import "@/assets/css/exam.css";
 const examStore = useExamStore();
+import { storeToRefs } from "pinia";
 
+const { initializeExams } = examStore;
+const {
+  totalExams,
+  activeExams,
+  completedToday,
+  avgScore,
+  currentPage,
+  itemsPerPage,
+  exams,
+} = storeToRefs(examStore);
+
+// Update statistics cards
+function updateStatistics() {
+  document.getElementById("totalExams").textContent = totalExams.value;
+  document.getElementById("activeExaminees").textContent = activeExams.value;
+  document.getElementById("completedToday").textContent = completedToday.value;
+  document.getElementById("averageScore").textContent = avgScore.value + "%";
+}
+
+// Render exams table
+function renderExams() {
+  const tableBody = document.getElementById("examsTableBody");
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const filteredExams = filterExams();
+  const paginatedExams = computed(() =>
+    filteredExams.slice(startIndex, endIndex)
+  );
+
+  tableBody.innerHTML = "";
+  paginatedExams.value.forEach((exam) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+            <td><input type="checkbox" class="exam-checkbox" value="${
+              exam.id
+            }"></td>
+            <td>${exam.id}</td>
+            <td>${exam.title}</td>
+            <td>${exam.type}</td>
+            <td><span class="status-badge status-${exam.status}">${
+      exam.status
+    }</span></td>
+            <td>${new Date(exam.date).toLocaleDateString()}</td>
+            <td>${exam.duration} mins</td>
+            <td>${exam.participants || 0}</td>
+            <td>
+                <button class="btn-view" onclick="viewExam('${exam.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-edit" onclick="editExam('${exam.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-delete" onclick="deleteExam('${exam.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+    tableBody.appendChild(row);
+  });
+
+  updatePagination(filteredExams.length);
+}
+
+// Filter exams based on search and filters
+function filterExams() {
+  const searchTerm = document.getElementById("examSearch").value.toLowerCase();
+  const statusFilter = document.getElementById("statusFilter").value;
+  const typeFilter = document.getElementById("typeFilter").value;
+
+  return exams.value.filter((exam) => {
+    const matchesSearch = exam.title.toLowerCase().includes(searchTerm);
+    const matchesStatus = !statusFilter || exam.status === statusFilter;
+    const matchesType = !typeFilter || exam.type === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
+}
+
+// Update pagination
+function updatePagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const pagination = document.querySelector(".pagination");
+  const pageNumbers = pagination.querySelector(".page-numbers");
+  const prevBtn = pagination.querySelector("button:first-child");
+  const nextBtn = pagination.querySelector("button:last-child");
+
+  // Update showing entries text
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems);
+  document.getElementById("showingStart").textContent = totalItems
+    ? startIndex
+    : 0;
+  document.getElementById("showingEnd").textContent = endIndex;
+  document.getElementById("totalEntries").textContent = totalItems;
+
+  // Update pagination buttons
+  pageNumbers.innerHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const button = document.createElement("button");
+    button.className = `btn-page${i === currentPage ? " active" : ""}`;
+    button.textContent = i;
+    button.onclick = () => {
+      currentPage.value = i;
+      renderExams();
+    };
+    pageNumbers.appendChild(button);
+  }
+
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage.value--;
+      renderExams();
+    }
+  };
+
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage.value++;
+      renderExams();
+    }
+  };
+}
 onMounted(() => {
-  examStore.initializeExams();
+  initializeExams();
+  updateStatistics();
+  renderExams();
 });
 </script>
